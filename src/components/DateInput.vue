@@ -1,7 +1,10 @@
 <template>
   <div :class="{'input-group' : bootstrapStyling}">
-    <!-- Calendar Button -->
-    <span v-if="calendarButton" class="vdp-datepicker__calendar-button" :class="{'input-group-addon' : bootstrapStyling}" @click="showCalendar" v-bind:style="{'cursor:not-allowed;' : disabled}">
+
+    <!-- Calendar Button prepend-->
+    <span v-if="calendarButton && calendarButtonPosition==='prepend'" class="vdp-datepicker__calendar-button" :class="{'input-group-prepend' : bootstrapStyling}" @click="showCalendar" v-bind:style="{'cursor:not-allowed;' : disabled}">
+      <!-- prepend slot -->
+      <slot v-if="!calendarButtonIcon" name="prepend"></slot>
       <i :class="calendarButtonIcon">
         {{ calendarButtonIconContent }}
         <span v-if="!calendarButtonIcon">&hellip;</span>
@@ -30,6 +33,17 @@
         <span v-if="!clearButtonIcon">&times;</span>
       </i>
     </span>
+
+    <!-- append slot -->
+    <!-- Calendar Button prepend-->
+    <span v-if="calendarButton && calendarButtonPosition==='append'"class="vdp-datepicker__calendar-button" :class="{'input-group-append' : bootstrapStyling}" @click="showCalendar" v-bind:style="{'cursor:not-allowed;' : disabled}">
+      <!-- prepend slot -->
+      <slot v-if="!calendarButtonIcon" name="append"></slot>
+      <i :class="calendarButtonIcon">
+        {{ calendarButtonIconContent }}
+        <span v-if="!calendarButtonIcon">&hellip;</span>
+      </i>
+    </span>
   </div>
 </template>
 <script>
@@ -51,6 +65,10 @@ export default {
     clearButtonIcon: String,
     calendarButton: Boolean,
     calendarButtonIcon: String,
+    calendarButtonPosition: {
+      type: String,
+      default: 'prepend'
+    },
     calendarButtonIconContent: String,
     disabled: Boolean,
     required: Boolean,
