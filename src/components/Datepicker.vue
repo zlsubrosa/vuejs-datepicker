@@ -17,6 +17,7 @@
       :calendarButton="calendarButton"
       :calendarButtonIcon="calendarButtonIcon"
       :calendarButtonIconContent="calendarButtonIconContent"
+      :calendarButtonPosition="calendarButtonPosition"
       :disabled="disabled"
       :required="required"
       :bootstrapStyling="bootstrapStyling"
@@ -24,8 +25,14 @@
       @closeCalendar="close"
       @typedDate="setTypedDate"
       @clearDate="clearDate"
-    />
-
+    >
+      <template v-if="!calendarButtonIcon" slot="prepend">
+        <slot name="prepend"></slot>
+      </template>
+      <template v-if="!calendarButtonIcon" slot="append" >
+        <slot name="append"></slot>
+      </template>
+    </date-input>
 
     <!-- Day View -->
     <picker-day
@@ -130,6 +137,7 @@ export default {
     calendarButton: Boolean,
     calendarButtonIcon: String,
     calendarButtonIconContent: String,
+    calendarButtonPosition: String,
     bootstrapStyling: Boolean,
     initialView: String,
     disabled: Boolean,

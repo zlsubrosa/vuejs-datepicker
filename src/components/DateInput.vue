@@ -7,7 +7,6 @@
       <slot v-if="!calendarButtonIcon" name="prepend"></slot>
       <i :class="calendarButtonIcon">
         {{ calendarButtonIconContent }}
-        <span v-if="!calendarButtonIcon">&hellip;</span>
       </i>
     </span>
     <!-- Input -->
@@ -36,12 +35,11 @@
 
     <!-- append slot -->
     <!-- Calendar Button prepend-->
-    <span v-if="calendarButton && calendarButtonPosition==='append'"class="vdp-datepicker__calendar-button" :class="{'input-group-append' : bootstrapStyling}" @click="showCalendar" v-bind:style="{'cursor:not-allowed;' : disabled}">
+    <span v-if="calendarButton && calendarButtonPosition === 'append'"class="vdp-datepicker__calendar-button" :class="{'input-group-append' : bootstrapStyling}" @click="showCalendar" v-bind:style="{'cursor:not-allowed;' : disabled}">
       <!-- prepend slot -->
       <slot v-if="!calendarButtonIcon" name="append"></slot>
       <i :class="calendarButtonIcon">
         {{ calendarButtonIconContent }}
-        <span v-if="!calendarButtonIcon">&hellip;</span>
       </i>
     </span>
   </div>
