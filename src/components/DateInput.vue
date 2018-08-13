@@ -22,15 +22,18 @@
       :clear-button="clearButton"
       :disabled="disabled"
       :required="required"
+      :readonly="!typeable"
       @click="showCalendar"
-      @keydown="allowTyping"
       @keyup="parseTypedDate"
-      @blur="inputBlurred">
+      @blur="inputBlurred"
+      autocomplete="off">
     <!-- Clear Button -->
-    <span v-if="clearButton && selectedDate" class="vdp-datepicker__clear-button" :class="{'input-group-addon' : bootstrapStyling}" @click="clearDate()">
-      <i :class="clearButtonIcon">
-        <span v-if="!clearButtonIcon">&times;</span>
-      </i>
+    <span v-if="clearButton && selectedDate" class="vdp-datepicker__clear-button" :class="{'input-group-append' : bootstrapStyling}" @click="clearDate()">
+      <span :class="{'input-group-text' : bootstrapStyling}">
+        <i :class="clearButtonIcon">
+          <span v-if="!clearButtonIcon">&times;</span>
+        </i>
+      </span>
     </span>
 
     <!-- append slot -->
@@ -45,11 +48,11 @@
   </div>
 </template>
 <script>
-import DateUtils from '../utils/DateUtils'
-
+import { makeDateUtils } from '../utils/DateUtils'
 export default {
   props: {
     selectedDate: Date,
+    resetTypedDate: [Date],
     format: [String, Function],
     translation: Object,
     inline: Boolean,
@@ -58,7 +61,7 @@ export default {
     refName: String,
     openDate: Date,
     placeholder: String,
-    inputClass: [String, Object],
+    inputClass: [String, Object, Array],
     clearButton: Boolean,
     clearButtonIcon: String,
     calendarButton: Boolean,
@@ -71,12 +74,15 @@ export default {
     disabled: Boolean,
     required: Boolean,
     typeable: Boolean,
-    bootstrapStyling: Boolean
+    bootstrapStyling: Boolean,
+    useUtc: Boolean
   },
   data () {
+    const constructedDateUtils = makeDateUtils(this.useUtc)
     return {
       input: null,
-      typedDate: false
+      typedDate: false,
+      utils: constructedDateUtils
     }
   },
   computed: {
@@ -89,7 +95,7 @@ export default {
       }
       return typeof this.format === 'function'
         ? this.format(this.selectedDate)
-        : DateUtils.formatDate(new Date(this.selectedDate), this.format, this.translation)
+        : this.utils.formatDate(new Date(this.selectedDate), this.format, this.translation)
     },
 
     computedInputClass () {
@@ -102,21 +108,14 @@ export default {
       return this.inputClass
     }
   },
+  watch: {
+    resetTypedDate () {
+      this.typedDate = false
+    }
+  },
   methods: {
     showCalendar () {
       this.$emit('showCalendar')
-    },
-    /**
-     * Prevent typing if not typeable
-     * @param {Event} event
-     * @return {Boolean}
-     */
-    allowTyping (event) {
-      if (!this.typeable) {
-        event.preventDefault()
-        return false
-      }
-      return true
     },
     /**
      * Attempt to parse a typed date
@@ -126,7 +125,7 @@ export default {
       // close calendar if escape or enter are pressed
       if ([
         27, // escape
-        13  // enter
+        13 // enter
       ].includes(event.keyCode)) {
         this.input.blur()
       }
@@ -144,16 +143,12 @@ export default {
      * called once the input is blurred
      */
     inputBlurred () {
-      if (!this.typeable) {
-        this.$emit('closeCalendar')
-        return
+      if (this.typeable && isNaN(Date.parse(this.input.value))) {
+        this.clearDate()
+        this.input.value = null
+        this.typedDate = null
       }
 
-      if (isNaN(Date.parse(this.input.value))) {
-        this.clearDate()
-      }
-      this.input.value = null
-      this.typedDate = null
       this.$emit('closeCalendar')
     },
     /**
